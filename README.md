@@ -1,0 +1,2 @@
+# logmeapp
+The LogMe App will render a UI that allows the user to keep a log of their daily fitness goals and achievements. Powered by the Edamam Food API, the site features a Meal Log to allow for users to choose from various food groups and keep track of their calorie intake! The app will rely on Django for its RESTAPI, React as a front-end framework, Redux and postgres for the database. The styling will rely on custom CSS and bootstrap. 
