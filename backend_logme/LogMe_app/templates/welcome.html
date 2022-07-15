@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+
+
+{% block content %}
+<nav class="navbar row">
+    <ul class="nav justify-content-end">
+        <li class="nav-item">
+            <a href="" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/meals">Log Meal</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">Log Workout</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/goals">Add a New Goal</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/logout/">Logout</a>
+        </li>
+    </ul> 
+</nav>
+
+<div class="card m-3">
+   <div class="card-body">
+        <p class="h2 card-title" id=cap>Welcome {{users.first_name}}!</p>
+        <p class="card-text" id=cap> You are x calories away from reaching your weekly goal!</p>
+    </div>
+</div>
+<div id="welcome_pane">
+    <p id="descriptions">words</p>
+</div>
+<div class="card-group">
+    <div class='card box-home'>
+        <div class="card-body" id="meal_cal">
+            <p class="h5 card-title welcome_text"><a href="/meals">View Meal Calendar</a></p>
+            <p class="card-text welcome_text" >Don't lose track! Check out your Meal Calendar.</p>
+            <p class="card-text"><small class="text-muted">Last updated (Model Name)</small></p>
+        </div>
+    </div>
+    <div class='card box-home'>
+        <div class="card-body" id="wo_cal">
+            <p class="h5 card-title welcome_text"><a href="/workouts">View Workout Calendar</a></p>
+            <p class="card-text welcome_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dolor sit amet consectetur adipiscing. Felis eget velit aliquet sagittis id consectetur purus ut faucibus.</p>
+            <p class="card-text"><small class="text-muted">Last updated (Model Name)</small></p>
+        </div>
+    </div>
+    <div class='card box-home'>
+        <div class="card-body" id="goals">
+            <a href="/goals"><p class="h5 card-title welcome_text">View Goals</p></a>
+            <p class="card-text welcome_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dolor sit amet consectetur adipiscing. Felis eget velit aliquet sagittis id consectetur purus ut faucibus.</p>
+            <p class="card-text"><small class="text-muted">Last updated (Model Name)</small></p>
+        </div>
+    </div>
+</div>
+{% render_bundle 'welcome' %}
+{% endblock %}
