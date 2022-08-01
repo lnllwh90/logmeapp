@@ -1,5 +1,0 @@
-get https://api.edamam.com/auto-complete
-?app_id=d4531d9e
-&app_key=21a4ac87d626d6cc9229f581bc171cc2
-&q=tofu
-
