@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li class="text-danger">{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="login_registration_card" id="registration_card2">
+  <div class="box">
+    <p id="title">Registration <p>
+      <form action="create_user/" method="POST" class="h5 form">
+          {% csrf_token %}
+          {{reg_form.as_p}}
+        <button type='submit' class="button">Register</button>
+      </form>
+      <p><a href="/">Back to Login</a></p>
+  </div>
+</div>
+{% endblock %}

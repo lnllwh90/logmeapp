@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}
+
+<nav class="navbar row">
+    <ul class="nav justify-content-end">
+        <li class="nav-item">
+            <a href="/welcome" class="nav-link">Home</a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+        </li>
+    </ul>
+</nav>
+<div id="root">
+    <!-- This element's contents will be replaced with your component. -->
+</div>
+
+<!-- <div id="like_button_container"></div> -->
+{% render_bundle 'goals' %}
+
+{% endblock %}
