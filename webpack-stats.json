@@ -1,0 +1,39 @@
+{
+  "status": "done",
+  "assets": {
+    "LoginRegistration.js": {
+      "name": "LoginRegistration.js",
+      "path": "/Users/devaughnwhite/Desktop/projects/projects/self_proj/projects-1/self_proj/front-end/assets/LoginRegistration.js"
+    },
+    "welcome.js": {
+      "name": "welcome.js",
+      "path": "/Users/devaughnwhite/Desktop/projects/projects/self_proj/projects-1/self_proj/front-end/assets/welcome.js"
+    },
+    "mealLog.js": {
+      "name": "mealLog.js",
+      "path": "/Users/devaughnwhite/Desktop/projects/projects/self_proj/projects-1/self_proj/front-end/assets/mealLog.js"
+    },
+    "goals.js": {
+      "name": "goals.js",
+      "path": "/Users/devaughnwhite/Desktop/projects/projects/self_proj/projects-1/self_proj/front-end/assets/goals.js"
+    },
+    "base.html": {
+      "name": "base.html",
+      "path": "/Users/devaughnwhite/Desktop/projects/projects/self_proj/projects-1/self_proj/front-end/assets/base.html"
+    }
+  },
+  "chunks": {
+    "LoginRegistration": [
+      "LoginRegistration.js"
+    ],
+    "welcome": [
+      "welcome.js"
+    ],
+    "mealLog": [
+      "mealLog.js"
+    ],
+    "goals": [
+      "goals.js"
+    ]
+  }
+}

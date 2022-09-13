@@ -1,0 +1,61 @@
+ {% extends 'base.html' %}
+ {% load render_bundle from webpack_loader %}
+
+{% block content %}
+<nav class="navbar row">
+    <ul class="nav justify-content-end">
+        <li class="nav-item">
+            <a href="/welcome" class="nav-link">Home</a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+        </li>
+    </ul>
+</nav>
+<p class="h2" id='meal_header'>Search and Log Your Meals</p>
+<form class="parentTag-container" action="#">
+    <div class="tag-container">
+         <!-- <div class="tag"> -->
+        <!--    <span id = 'mealT ag'>kiwi</span> -->
+        
+        <!-- </div> -->
+        <!-- <input /> -->
+    </div>
+ 
+    <input type="button" value="Start Log" id="tagSubmission">
+</form>
+<div class="kw_search">
+    <form id="search-form"  autocomplete="off">
+        {{ search_form.as_p }}
+         <!-- <input type="hidden" name="csrf" value="{% csrf_token %}" id="csrf">  -->
+        <!--
+        class='kw_search-loading' 
+        
+        <input type="text" name="search_term" id="search-term" label="Search for meal" required="" maxlength="255">
+        -->
+    </form>
+    <div id="results-box" class="results-card not-visible container"></div>
+</div>
+<div id="mealform">
+  <div class="input-group mb-3">
+    <form action='#' method="POST">
+        {% csrf_token %}
+        {{ meal_form.as_table}}
+        {{ form.date }}
+    </form>
+  </div>
+    <p>
+        <input type="button" name="submit" value="Log Meal" class="btn btn-primary my-2">
+    </p>
+</div>
+<!-- <div>
+    <datalist>
+    {% for workout in workouts %}
+    {% empty %}
+        <option value="workout"></option>
+    {%endfor%}
+    </datalist>
+</div> -->
+{% render_bundle 'mealLog' %}
+{% endblock %}
