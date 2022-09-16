@@ -581,5 +581,9 @@
   span#mealTag{
     margin: 10px;
   }
-  
+  p.card-timestamp{
+    font-size: 0.56rem;
+    /* margin: 0px, 7px; */
+  }
+
   

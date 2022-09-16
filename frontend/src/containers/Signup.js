@@ -38,7 +38,8 @@ const Signup = ({ register, isAuthenticated }) => {
     if (isAuthenticated)
         return <Navigate to= '/logme/logme-welcome' />;
     else if (accountCreated)
-        return <Navigate to='/logme/logme-welcome' />;
+        return <Navigate to='/logme/logme-login' />;
+
     
     // else if (accountCreated)
     //     return <Redirect to='/login' />;

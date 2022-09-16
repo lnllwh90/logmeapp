@@ -37,31 +37,19 @@ class LogRegManager(models.Manager):
             errors['password'] = 'Invalid: Password can only contain Alphanumeric values.'
         if postData['password'] != postData['confirm_password']:
             errors['password'] = 'Invalid: Passwords do not match!'
-        # if not alphanumeric.match(postData['profile_name']):
-        #     errors['profile name'] = 'Invalid: Profile name can only contain letters, numbers or the following special characters: "@", "_", "-", ".". Please Try again!'
 
         return errors
 
-#     # def log_validator(self, postData):
-#     #     ''' Login Validators '''
-#     #     errors = {}
 
-#     #     auth_email = LogReg.objects.filter(email=postData['email'])
-#     #     if not auth_email:
-#     #         errors['email'] = 'Invalid: Email has not been registered.'
-#     #     elif not bcrypt.checkpw(postData['pw'].encode(), auth_email[0].pw.encode()):
-#     #         errors['not_found'] = 'Invalid: Password does not match our records, try again.'
+    def log_validator(self, postData):
+        ''' Login Validators '''
+        errors = {}
 
-#     #     return errors
+        auth_email = LogReg.objects.filter(email=postData['email'])
+        if not auth_email:
+            errors['email'] = 'Invalid: Email has not been registered.'
 
-#     # def searchForm_validator(self, postData):
-#     #     errors = {}
-#     #     alphabet = re.compile(r'^[a-zA-Z]*$')
-
-#     #     if not alphabet.search(postData['search_term']):
-#     #         errors['last_name'] = 'Invalid: Please include letters of the alphabet only.'
-
-        
+        return errors
 
 # class mealManager(models.Manager):
 #     def meal_validator(self, postData):
@@ -80,8 +68,8 @@ class LogReg(models.Model):
     first_name = models.CharField(verbose_name='First Name', max_length=32)
     last_name = models.CharField('Last Name', max_length=32)
     email = models.EmailField('Email')
-    password = models.CharField('Password', max_length=32)
-    confirm_password = models.CharField('Confirm Password', max_length=32)
+    password = models.CharField('Password', max_length=256)
+    confirm_password = models.CharField('Confirm Password', max_length=256)
     profile_name = models.CharField('Profile Name', max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

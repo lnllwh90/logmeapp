@@ -8,8 +8,7 @@ class LogRegSerializer(serializers.ModelSerializer):
     fields = ['first_name', 'last_name', 'email', 'created_at', 'updated_at', 'id', 'profile_name', 'password']
 
     def create(self, validated_data):
-
-      
+    
       return LogReg.objects.create(**validated_data)
 
 class MealLogSerializer(serializers.ModelSerializer):

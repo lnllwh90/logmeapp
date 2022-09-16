@@ -63,7 +63,10 @@ const Login = ({ login, isAuthenticated }) => {
             <button type="submit" className="button">Login</button>
         </form>
         <p className='logReg-footer'>
-                Need to register? <Link to="/logme/logme-signup">Sign-up here!</Link>
+            Need to register? 
+            <Link to="/logme/logme-signup">
+                Sign-up here!
+            </Link>
         </p>
         </div>
         </div>

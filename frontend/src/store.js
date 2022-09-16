@@ -6,12 +6,19 @@ import rootReducer from './reducers';
 
 const initialState = {};
 const middleware = [thunk];
+const vsCodeEnhancer = {
+  realtime: true,
+  name: 'logme',
+  hostname: 'localhost',
+  port: 8000
+}
 
 
 const store = createStore(
   rootReducer,
   initialState,
-  composeWithDevTools(applyMiddleware(...middleware))
+  composeWithDevTools(applyMiddleware(...middleware, vsCodeEnhancer))
+
 );
 
 export default store;

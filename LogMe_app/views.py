@@ -39,6 +39,7 @@ class CheckAuthenticatedView(APIView):
             else:
                 return Response({ 'isAuthenticated': 'error' })
         except:
+
             return Response({ 'error': 'Something went wrong when checking authentication status'})
 
 @method_decorator(ensure_csrf_cookie, name = 'dispatch')
@@ -51,9 +52,11 @@ class GetCSRFToken(APIView):
 
 @method_decorator(csrf_protect, name = 'dispatch')
 class SignupView(APIView):
+
     permission_classes = (permissions.AllowAny, )
     
     def post(self, request, format = None):
+
         ''' Create a new user and adds the user to the DB. Upon success the user is then redirected to the LogMe app home page. '''
 
         data = self.request.data
@@ -63,236 +66,110 @@ class SignupView(APIView):
 
         errors = LogReg.objects.registration_validator(data)
         
-        check_emailDB = LogReg.objects.filter (email=data['email'])
+        check_emailDB = LogReg.objects.filter(email=data['email'])
+
         check_emailAPI = User.objects.filter(username = data['email'])
 
         profileName_check = LogReg.objects.filter(profile_name = data['profile_name'])
 
-        if check_emailDB or check_emailAPI:
-            return Response({'error': 'Email/Username already exists, please try again'})
+        try:
 
-        elif profileName_check:
-            return Response({'error': 'Profile Name already exists. Please try again!'})
+            if check_emailDB or check_emailAPI:
 
-        elif len(errors) > 0:
-            for key, value in errors.items():
-                return Response({'error': {'key': key, 'description': value}})    
-        else:
-            try: 
+                return Response({'error': 'Email/Username already exists, please try again'})
+
+            elif len(errors) > 0:
+
+                for key, value in errors.items():
+
+                    return Response({'error': {'key': key, 'description': value}})   
+            else: 
                 if auth_password == auth_cpw:
 
-                    hashed_pw = bcrypt.hashpw(data['password'].encode(), bcrypt.gensalt()).decode()
+                    if profileName_check:
 
-                    serializer = LogRegSerializer(data = data)
-                    #must call .is_valid to interact with the serializer
-
-                    if serializer.is_valid(raise_exception=True):
+                        return Response({'error': 'Profile Name already exists. Please try again!'})
+                    else:
+                        serializer = LogRegSerializer(data = data)
                         
-                        clean_data = serializer.validated_data
+                        # must call .is_valid to interact with the serializer
 
-                        hashed_pw = bcrypt.hashpw(clean_data['password'].encode(), bcrypt.gensalt()).decode()
-
-                        print(clean_data)
-                        # print(hashed_pw)
-                        
-                        user = User.objects.create_user(
-                            username = clean_data['email'], 
-                            password = hashed_pw, 
-                            first_name = clean_data['first_name'], 
-                            last_name = clean_data['last_name'],
+                        if serializer.is_valid(raise_exception=True):
+                            
+                            clean_data = serializer.data
+                            
                             email = clean_data['email']
-                        )
-
-                        user.save()
-                        
-                        userDB = LogReg.objects.create_user(
-                            user=user,
-                            email = clean_data['email'], 
-                            password = hashed_pw, 
-                            first_name = clean_data['first_name'], 
-                            last_name = clean_data['last_name'],
+                            password = clean_data['password']
+                            hashed_pw =  make_password(password)
+                            first_name = clean_data['first_name'] 
+                            last_name = clean_data['last_name']
                             profile_name = clean_data['profile_name']
-                        )
 
-                        userDB.save()
+                            # You don't need to add variable.save() as the model.objects.create_user() function will save the instance for you.
 
-                        print('hi')
-                        #Will need to save serializer last, won't save to RESTApi
-                        # serializer.save()
+                            user = User.objects.create_user(
+                                username = email,
+                                email = email, 
+                                first_name = first_name, 
+                                last_name = last_name,
+                                password = hashed_pw
+                            )
 
-                        user = User.objects.get(id=user.id)
+                            userId = User.objects.get(id = user.id)
+                            
+                            LogReg.objects.create(
+                                email = email, 
+                                password = hashed_pw, 
+                                first_name = first_name, 
+                                last_name = last_name,
+                                profile_name = profile_name,
+                                user = userId
+                            )
+                            #assigns the user to the session
+                        
+                            userSession = auth.authenticate(request, username = email, password = hashed_pw)
 
-                        return Response({ 'success': 'User created successfully' 
-                        }, 
-                        status=status.HTTP_201_CREATED)
+                            #Check's if the user is authenticated
+                            isAuthenticated = userSession.is_authenticated
+                            if isAuthenticated:
 
+                                #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
+                                auth.login(request, userSession)
+                            
+                            return Response(
+                                { 
+                                    'success': 'User created successfully' 
+                                }, 
+                                status=status.HTTP_201_CREATED
+                            )
+                        
                 else:
-                    return Response({ 
-                        'error': 'Passwords do not match' 
+
+                    return Response(
+                        { 
+                            'error': 'Passwords do not match' 
                         }, 
                         status=status.HTTP_400_BAD_REQUEST)
-            except:
-                return Response({ 
+
+        except:
+
+            return Response(
+                { 
                     'error': 'Something went wrong when registering account. Please Try again.' 
                 }, 
                 status=status.HTTP_400_BAD_REQUEST)
-            
-            return Response({ 
-                'error': 'Something went wrong when registering account. If this issue persist please contact system Admin for assistance' 
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-                        # clean_data = serializer.data
-                        # password = clean_data['password']
-                        # confirm_password = data['confirm_password']
-                        # email = clean_data['email']
-                        # profile_name = clean_data['profile_name']
-
-            # check_email = LogReg.objects.filter (email=email)
-            
-
-            # if check_email:
-            #     return Response({
-            #     'error': str(errors)})
-        # return Response({ 'error': 'Username already exists' })
-        # return Response({ 'error' : 'Profile Name already exists' })
-
-            # if len(password) < 8 :
-            #     return Response({ 'error': 'Password must be at least 8 characters long. Try Again.' })
-            # else: 
-            #     try:
-                    #Look into protecting the password and confirm password before hashing
-        #             if password == confirm_password:
-        #                 # hashed_pw = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
-        #                 if LogReg.objects.filter (email=email).exists():
-        #                     return Response({ 'error': 'Username already exists' })
-        #                 elif LogReg.objects.filter(profile_name = profile_name).exists():
-        #                     return Response({ 'error' : 'Profile Name already exists' })
-        #                 else:
-        #                     serializer.save()
-        #                     # user = User.objects.create_user(
-        #                     #     username = email, 
-        #                     #     password = hashed_pw, 
-        #                     #     first_name = first_name, 
-        #                     #     last_name = last_name, 
-        #                     #     email=email,
-        #                     #     profile_name = profile_name
-        #                     # )
-
-        #                     # user.save()
-
-        #                     # user = User.objects.get(id=user.id)
-                            
-                            
-
-        #                     # user_profile = LogReg.objects.create(
-        #                     #     user=user,
-        #                     #     first_name = first_name,
-        #                     #     last_name = last_name,
-        #                     #     email = email,
-        #                     #     profile_name = profile_name,
-        #                     #     pw = hashed_pw
-        #                     # )
-
-        #                         # request.session['log_user_id'] = user_profile.id
-        #                     # user_profile.save()
-
-        #                     return Response({  'success': 'User created successfully' })
-        #             else:
-        #                 return Response({ 'error': 'Passwords do not match' })
-        #         except:
-        #             return Response({ 'error': 'Something went wrong when registering account' })
-                
-        #     # return Response({ 'error': 'Something went wrong when registering account' })
-
-
-
-        # # password = data['password']
-        # # print(password)
-        # # hashed_pw = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-        # # print(hashed_pw)
-        # # if serializer.is_valid(raise_exception=True):
-        # #     serializer.save()
-        #     # clean_data = serializer.data
-        #     # user = User.objects.create_user(
-        #     #     username = clean_data['email'], 
-        #     #     password = clean_data['password'], 
-        #     #     first_name = clean_data['first_name'], 
-        #     #     last_name = clean_data['last_name']
-        #     # )
-
-        #     # user = User.objects.get(id=user.id)
-        #     # print(clean_data['email'])
-        #     # print(clean_data['first_name'])
-        # #     return Response({  'success': 'User created successfully' }) 
-        # # return Response(serializer.errors)
-
-        # # username = data['username']
-        # # password = data['password']
-        # # re_password = data['re_password']
-        # # first_name = data['first_name']
-        # # last_name = data['last_name']
-        # # email = username
-        # # profile_name = data['profile_name']
-        
-        # # print(data)
-        # # print(email)
-
-        # # if len(password) < 8 :
-        # #     return Response({ 'error': 'Password must be at least 8 characters long. Try Again.' })
-        # # else: 
-        # #     try:
-        # #         if password == re_password:
-        # #             if User.objects.filter (username=username).exists():
-        # #                 return Response({ 'error': 'Username already exists' })
-        # #             elif LogReg.objects.filter(profile_name = data['profile_name']).exists():
-        # #                 return Response({ 'error' : 'Profile Name already exists' })
-        # #             else:
-        # #                 user = User.objects.create_user(
-        # #                     username = username, 
-        # #                     password = password, 
-        # #                     first_name = first_name, 
-        # #                     last_name = last_name, 
-        # #                     email=email,
-        # #                     profile_name = profile_name
-        # #                 )
-
-        # #                 user.save()
-
-        # #                 user = User.objects.get(id=user.id)
-                        
-        # #                 hashed_pw = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
-        # #                 user_profile = LogReg.objects.create(
-        # #                     user=user,
-        # #                     first_name = first_name,
-        # #                     last_name = last_name,
-        # #                     email = email,
-        # #                     profile_name = data['profile_name'],
-        # #                     pw = hashed_pw
-        # #                 )
-
-        # #                     # request.session['log_user_id'] = user_profile.id
-        # #                 user_profile.save()
-
-        # #                 return Response({  'success': 'User created successfully' })
-        # #         else:
-        # #             return Response({ 'error': 'Passwords do not match' })
-        # #     except:
-        # #         return Response({ 'error': 'Something went wrong when registering account' })
-
 
 class GetUserProfileView(APIView):
     def get(self, request, format=None):
-        # print(self.request.user)
+
         user = self.request.user
-        print(user)
         try:
             user_profile = LogReg.objects.get(email=user)
             user_profile = LogRegSerializer(user_profile)
-            # print(user_profile)
+
             return Response({ 'profile': user_profile.data, 'username': str(user) })
         except:
+
             return Response({ 'error': 'Something went wrong when retrieving profile'})
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -300,24 +177,59 @@ class LoginView(APIView):
     permission_classes = (permissions.AllowAny, )
     def post(self, request, format=None):
         ''' Login page for existing users'''
+        
         data = self.request.data
 
-        print(data)
-
-
-
         email = data['email']
-        password = data['password']
-        print(email, password)
+        password= data['password']
+
+        errors = LogReg.objects.log_validator(data)
 
         try:
-            user = auth.authenticate(username = email, password = password)
-
-            if user is not None:
-                auth.login(request, user)
-                return Response({ 'success':'User Authenticated' })
+            #Checks the Model validator for errors
+            if len(errors) > 0:
+                for key,value in errors.items():
+                    messages.error(request,value)
+                    return Response(
+                        {
+                            'error': {
+                                'key' : key, 
+                                'description': value
+                            }
+                        }
+                    )
             else:
-                return Response({ 'error': 'Error Authenticating' })
+                #Get the user's email from the Database
+                user_authentication = LogReg.objects.get(email = email)
+
+                #checks if the user's email address exists in the Database
+                if user_authentication is not None:
+                    password_authentication = check_password(password, user_authentication.password)
+                    #Check's if the password entered matches the password stored in the Database
+                    if password_authentication:
+
+                        valid_password = user_authentication.password
+
+                        #If the login credentials are valid, check for authentication
+                        user = auth.authenticate(username = email, password = valid_password)
+                        
+                        #Check's if the user is authenticated
+                        if user is not None:
+                            isAuthenticated = user.is_authenticated
+                            if isAuthenticated:
+
+                                #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
+                                auth.login(request, user)
+                                print('User detected from Database')
+                                return Response({ 
+                                    'success':'User Authenticated Successfully!' 
+                                    }
+                                )
+                        else:
+                            return Response({ 'error': 'Error Authenticating. Try Again' })
+                            
+                    else:
+                        return Response({'error': 'Password does not match our records. Try Again'})
         except:
             return Response({ 'error': 'Something went wrong when logging in' })
 

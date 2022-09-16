@@ -5,6 +5,11 @@ import {
   LOGIN_FAIL,
   LOGOUT_SUCCESS,
   LOGOUT_FAIL,
+  AUTHENTICATED_SUCCESS,
+  AUTHENTICATED_FAIL,
+  LOAD_USER_PROFILE_SUCCESS,
+  LOAD_USER_PROFILE_FAIL,
+
 } from '../actions/types'
 
 const initialState = {
@@ -12,6 +17,8 @@ const initialState = {
   email: '',
   first_name: '',
   last_name: '',
+  profile_name: '',
+  id: null,
   profile_name: ''
 };
 
@@ -29,6 +36,20 @@ export default function(state = initialState, action){
     case LOGIN_SUCCESS:
       return {
         ...state,
+        isAuthenticated: true
+      }
+    case AUTHENTICATED_SUCCESS:
+    case AUTHENTICATED_FAIL:
+      return {
+        ...state,
+        isAuthenticated: payload
+      }
+    case LOAD_USER_PROFILE_SUCCESS:
+      return {
+        ...state,
+        profile_name: payload.profile.profile_name,
+        email: payload.profile.email,
+        id: payload.profile.id,
         isAuthenticated: true,
         email: payload
       }
@@ -38,6 +59,15 @@ export default function(state = initialState, action){
         isAuthenticated: false,
         email: ''
       }
+      case LOAD_USER_PROFILE_FAIL:
+        return{
+          ...state,
+          profile_name: '',
+          email: '',
+          first_name: '',
+          last_name: '',
+          id: null
+        }
     case REGISTER_FAIL:
     case LOGOUT_FAIL:
     case LOGIN_FAIL:

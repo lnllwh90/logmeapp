@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie'
 import Cookies from'js-cookie'
 import{
   REGISTER_SUCCESS,
@@ -8,6 +9,81 @@ import{
   LOGOUT_SUCCESS,
   LOGOUT_FAIL,
   EDAMAM_FOOD_API,
+  LOAD_USER_PROFILE_SUCCESS,
+  LOAD_USER_PROFILE_FAIL,
+  AUTHENTICATED_FAIL,
+  AUTHENTICATED_SUCCESS
+} from './types';
+
+export const checkAuthenticated = () => async dispatch => {
+  const config = {
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json'
+    }
+
+  };
+
+  try {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/authenicated/`, config)
+
+    if (res.data.error || res.data.isAuthenticated === 'error') {
+      dispatch({
+        type: AUTHENTICATED_FAIL,
+        payload: false
+      });
+    }
+    else if (res.data.isAuthenticated === 'success') {
+      dispatch({
+        type: AUTHENTICATED_SUCCESS,
+        payload: true
+      });
+    }
+    else{
+      dispatch({
+        type: AUTHENTICATED_FAIL,
+        payload: false
+      })
+    }
+
+
+  } catch(err) {
+    dispatch({
+      type: AUTHENTICATED_FAIL,
+      payload: false
+      });
+    }
+};
+
+
+export const load_user = () => async dispatch => {
+  const config = {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  };
+
+  try {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/user/`, config);
+
+    if (res.data.error) {
+      dispatch({
+        type: LOAD_USER_PROFILE_FAIL
+      });
+    } else {
+        dispatch({ 
+          type: LOAD_USER_PROFILE_SUCCESS,
+          payload: res.data
+        });
+      }
+    } catch (err) {
+      dispatch({ 
+        type: LOAD_USER_PROFILE_FAIL
+      });
+    }
+};
+
 } from './types';
 
 export const login = (email, password) => async dispatch => {
@@ -25,6 +101,19 @@ export const login = (email, password) => async dispatch => {
     const res = await axios.post(`${process.env.REACT_APP_API_URL}/login/`, body, config);
 
     if (res.data.success){
+
+      dispatch({
+
+        type: LOGIN_SUCCESS,
+
+      });
+
+      dispatch(load_user());
+
+    } else {
+      dispatch({
+
+        type: LOGIN_FAIL
       
       dispatch({
         type: LOGIN_SUCCESS,
@@ -45,8 +134,8 @@ export const login = (email, password) => async dispatch => {
 
 export const logout = (email, password) => async dispatch => {
   const config = {
+
     headers: {
-      //
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'X-CSRFToken': Cookies.get('csrftoken')
@@ -61,6 +150,7 @@ export const logout = (email, password) => async dispatch => {
       dispatch({
         type: LOGOUT_SUCCESS,
       });
+
       console.log(res.data.success)
     } else {
       dispatch({
@@ -73,6 +163,7 @@ export const logout = (email, password) => async dispatch => {
       });
   }
 }
+
 // export const getuser = () => async dispatch =>{
 //   const config = {
 //     headers: {
@@ -99,7 +190,6 @@ export const register = (email, password, confirm_password, first_name, last_nam
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'X-CSRFToken': Cookies.get('csrftoken')
-
     }
   };
   // JSON.stringify to format a JSON response
@@ -113,11 +203,14 @@ export const register = (email, password, confirm_password, first_name, last_nam
       dispatch({
         type: REGISTER_FAIL
       });
+
       console.log(res.data.error)
     } else {
       dispatch({
         type: REGISTER_SUCCESS
       });
+      dispatch(load_user());
+
     }
   } catch (err) {
       dispatch({
