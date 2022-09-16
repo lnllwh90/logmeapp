@@ -18,3 +18,4 @@ const Layout = ({children, checkAuthenticated, load_user}) => {
 };
 
 export default connect(null, {checkAuthenticated,load_user}) (Layout);
+

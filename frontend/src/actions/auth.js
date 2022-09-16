@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie'
+import Cookies from'js-cookie'
 import{
   REGISTER_SUCCESS,
   REGISTER_FAIL,
@@ -83,6 +84,8 @@ export const load_user = () => async dispatch => {
     }
 };
 
+} from './types';
+
 export const login = (email, password) => async dispatch => {
   const config = {
     headers: {
@@ -111,23 +114,28 @@ export const login = (email, password) => async dispatch => {
       dispatch({
 
         type: LOGIN_FAIL
-
+      
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: res.data.email
+      });
+      console.log(res.data.success)
+    } else {
+      dispatch({
+        type: LOGIN_FAIL
       });
     }
   } catch (err) {
       dispatch({
-
         type: LOGIN_FAIL
-
       });
   }
 }
 
 export const logout = (email, password) => async dispatch => {
   const config = {
-    
+
     headers: {
-      //
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'X-CSRFToken': Cookies.get('csrftoken')
@@ -142,6 +150,8 @@ export const logout = (email, password) => async dispatch => {
       dispatch({
         type: LOGOUT_SUCCESS,
       });
+
+      console.log(res.data.success)
     } else {
       dispatch({
         type: LOGOUT_FAIL
@@ -153,6 +163,25 @@ export const logout = (email, password) => async dispatch => {
       });
   }
 }
+
+// export const getuser = () => async dispatch =>{
+//   const config = {
+//     headers: {
+//       'Accept': 'application/json',
+//       'Content-Type': 'application/json'
+//     }
+//   };
+  // try {
+  //   const res = axios.get(`${process.env.REACT_APP_API_URL}/user/`, config);
+
+  //   if (res.data.success){
+  //     dispatch({
+  //       type: LOAD_USER_PROFILE,
+  //       payload: res.data
+  //     })
+  //   }
+  //   }
+  // }
 
 export const register = (email, password, confirm_password, first_name, last_name, profile_name) => async dispatch => {
   const config = {
@@ -174,11 +203,14 @@ export const register = (email, password, confirm_password, first_name, last_nam
       dispatch({
         type: REGISTER_FAIL
       });
+
+      console.log(res.data.error)
     } else {
       dispatch({
         type: REGISTER_SUCCESS
       });
       dispatch(load_user());
+
     }
   } catch (err) {
       dispatch({

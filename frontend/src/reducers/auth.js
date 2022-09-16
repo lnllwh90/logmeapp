@@ -9,6 +9,7 @@ import {
   AUTHENTICATED_FAIL,
   LOAD_USER_PROFILE_SUCCESS,
   LOAD_USER_PROFILE_FAIL,
+
 } from '../actions/types'
 
 const initialState = {
@@ -17,7 +18,8 @@ const initialState = {
   first_name: '',
   last_name: '',
   profile_name: '',
-  id: null
+  id: null,
+  profile_name: ''
 };
 
 export default function(state = initialState, action){
@@ -48,6 +50,8 @@ export default function(state = initialState, action){
         profile_name: payload.profile.profile_name,
         email: payload.profile.email,
         id: payload.profile.id,
+        isAuthenticated: true,
+        email: payload
       }
     case LOGOUT_SUCCESS:
       return{

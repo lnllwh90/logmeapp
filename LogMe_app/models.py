@@ -1,7 +1,6 @@
 from django.db import models
 import re
 from django.core.validators import *
-from django.contrib.auth.hashers import check_password
 from datetime import *
 from django.db.models.expressions import F
 from django.db.models.fields import CharField, EmailField, NullBooleanField, TextField
@@ -38,34 +37,19 @@ class LogRegManager(models.Manager):
             errors['password'] = 'Invalid: Password can only contain Alphanumeric values.'
         if postData['password'] != postData['confirm_password']:
             errors['password'] = 'Invalid: Passwords do not match!'
-        # if not alphanumeric.match(postData['profile_name']):
-        #     errors['profile name'] = 'Invalid: Profile name can only contain letters, numbers or the following special characters: "@", "_", "-", ".". Please Try again!'
 
         return errors
+
 
     def log_validator(self, postData):
         ''' Login Validators '''
         errors = {}
 
         auth_email = LogReg.objects.filter(email=postData['email'])
-        # password = postData['password']
-        # password_authentication = check_password(password, auth_email.password)
-
         if not auth_email:
             errors['email'] = 'Invalid: Email has not been registered.'
-        # elif not password_authentication:
-        #     errors['not_found'] = 'Invalid: Password does not match our records, try again.'
 
         return errors
-
-#     # def searchForm_validator(self, postData):
-#     #     errors = {}
-#     #     alphabet = re.compile(r'^[a-zA-Z]*$')
-
-#     #     if not alphabet.search(postData['search_term']):
-#     #         errors['last_name'] = 'Invalid: Please include letters of the alphabet only.'
-
-        
 
 # class mealManager(models.Manager):
 #     def meal_validator(self, postData):
@@ -85,7 +69,7 @@ class LogReg(models.Model):
     last_name = models.CharField('Last Name', max_length=32)
     email = models.EmailField('Email')
     password = models.CharField('Password', max_length=256)
-    confirm_password = models.CharField('Confirm Password', max_length=32)
+    confirm_password = models.CharField('Confirm Password', max_length=256)
     profile_name = models.CharField('Profile Name', max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -13,10 +13,12 @@ const vsCodeEnhancer = {
   port: 8000
 }
 
+
 const store = createStore(
   rootReducer,
   initialState,
   composeWithDevTools(applyMiddleware(...middleware, vsCodeEnhancer))
+
 );
 
 export default store;

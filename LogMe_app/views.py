@@ -39,7 +39,8 @@ class CheckAuthenticatedView(APIView):
             else:
                 return Response({ 'isAuthenticated': 'error' })
         except:
-            return Response({ 'error': 'something went wrong. Try again.'})
+
+            return Response({ 'error': 'Something went wrong when checking authentication status'})
 
 @method_decorator(ensure_csrf_cookie, name = 'dispatch')
 class GetCSRFToken(APIView):
@@ -66,6 +67,7 @@ class SignupView(APIView):
         errors = LogReg.objects.registration_validator(data)
         
         check_emailDB = LogReg.objects.filter(email=data['email'])
+
         check_emailAPI = User.objects.filter(username = data['email'])
 
         profileName_check = LogReg.objects.filter(profile_name = data['profile_name'])
@@ -124,7 +126,6 @@ class SignupView(APIView):
                                 user = userId
                             )
                             #assigns the user to the session
-                            # user = auth.authenticate(username = email, password = valid_password)
                         
                             userSession = auth.authenticate(request, username = email, password = hashed_pw)
 
@@ -134,9 +135,6 @@ class SignupView(APIView):
 
                                 #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
                                 auth.login(request, userSession)
-                            
-                                # userSession = auth.authenticate(request, user)
-                                # login(request, userSession)
                             
                             return Response(
                                 { 
@@ -164,19 +162,12 @@ class SignupView(APIView):
 class GetUserProfileView(APIView):
     def get(self, request, format=None):
 
-        print(self.request.data)
-
         user = self.request.user
-
-        print(user.email)
-
         try:
             user_profile = LogReg.objects.get(email=user)
-
             user_profile = LogRegSerializer(user_profile)
 
             return Response({ 'profile': user_profile.data, 'username': str(user) })
-
         except:
 
             return Response({ 'error': 'Something went wrong when retrieving profile'})
