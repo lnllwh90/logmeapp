@@ -19,15 +19,17 @@ from urllib.parse import urlparse, quote, unquote
 import random
 import string
 import secrets
+from django.db.models import Q
 import requests
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
-
+from django.contrib.auth.hashers import check_password
 
 # Create your views here.
 
 class CheckAuthenticatedView(APIView):
+    ''' Checks if the user is authenticated'''
     def get(self, request, format=None):
         user = self.request.user
 
@@ -44,6 +46,7 @@ class CheckAuthenticatedView(APIView):
 
 @method_decorator(ensure_csrf_cookie, name = 'dispatch')
 class GetCSRFToken(APIView):
+    ''' Assigns a CSRF token for the session'''
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
@@ -57,15 +60,15 @@ class SignupView(APIView):
     
     def post(self, request, format = None):
 
-        ''' Create a new user and adds the user to the DB. Upon success the user is then redirected to the LogMe app home page. '''
+        ''' Create a new user and adds the user to the Database. Upon success the user is then redirected to the LogMe app home page. '''
 
         data = self.request.data
-        
+
         auth_password = data['password']
         auth_cpw = data['confirm_password']
 
         errors = LogReg.objects.registration_validator(data)
-        
+
         check_emailDB = LogReg.objects.filter(email=data['email'])
 
         check_emailAPI = User.objects.filter(username = data['email'])
@@ -91,13 +94,13 @@ class SignupView(APIView):
                         return Response({'error': 'Profile Name already exists. Please try again!'})
                     else:
                         serializer = LogRegSerializer(data = data)
-                        
+
                         # must call .is_valid to interact with the serializer
 
                         if serializer.is_valid(raise_exception=True):
-                            
+
                             clean_data = serializer.data
-                            
+
                             email = clean_data['email']
                             password = clean_data['password']
                             hashed_pw =  make_password(password)
@@ -116,7 +119,7 @@ class SignupView(APIView):
                             )
 
                             userId = User.objects.get(id = user.id)
-                            
+
                             LogReg.objects.create(
                                 email = email, 
                                 password = hashed_pw, 
@@ -126,7 +129,7 @@ class SignupView(APIView):
                                 user = userId
                             )
                             #assigns the user to the session
-                        
+
                             userSession = auth.authenticate(request, username = email, password = hashed_pw)
 
                             #Check's if the user is authenticated
@@ -135,14 +138,14 @@ class SignupView(APIView):
 
                                 #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
                                 auth.login(request, userSession)
-                            
+
                             return Response(
                                 { 
                                     'success': 'User created successfully' 
                                 }, 
                                 status=status.HTTP_201_CREATED
                             )
-                        
+
                 else:
 
                     return Response(
@@ -154,31 +157,52 @@ class SignupView(APIView):
         except:
 
             return Response(
-                { 
-                    'error': 'Something went wrong when registering account. Please Try again.' 
-                }, 
+                {
+                    'error': 'Something went wrong when registering account. Please Try again.'
+                },
                 status=status.HTTP_400_BAD_REQUEST)
+
 
 class GetUserProfileView(APIView):
     def get(self, request, format=None):
+        ''' Retrieves the Users profile_name and id from the database to persists the users session and populate the jsx files powered by React.js'''
 
-        user = self.request.user
+        data = self.request.data
+
+        userProfile_email = data.get('email')
+        userProfile_profileName = data.get('profile_name')
         try:
-            user_profile = LogReg.objects.get(email=user)
-            user_profile = LogRegSerializer(user_profile)
-
-            return Response({ 'profile': user_profile.data, 'username': str(user) })
-        except:
-
-            return Response({ 'error': 'Something went wrong when retrieving profile'})
+            if userProfile_profileName and userProfile_email:
+                #This will check that if a profile_name and email was entered in the request that both are for the same user.
+                user_profile = LogReg.objects.get(Q(profile_name = userProfile_profileName) & Q(email=userProfile_email) )
+                #check the DB for the profile_name, if only the profile_name is in the request
+            elif userProfile_profileName:
+                user_profile = LogReg.objects.get(profile_name = userProfile_profileName)
+                #check the DB for the email, if only the email is in the request
+            elif userProfile_email:
+                user_profile = LogReg.objects.get( email = userProfile_email )
+            else:
+                return Response({'error': 'User credentials do not exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({ 'profile_name': user_profile.profile_name, 'id': user_profile.id }, status=status.HTTP_200_OK )
+        except LogReg.DoesNotExist:
+            if userProfile_profileName and userProfile_email:
+                return Response({ 'error': f'User Credentials with email: {userProfile_email} and profile_name: {userProfile_profileName} do not exists.'}, status=status.HTTP_404_NOT_FOUND)
+            elif userProfile_profileName:
+                return Response({ 'error': f'The profile name: {userProfile_profileName} does not exists.'}, status=status.HTTP_404_NOT_FOUND)
+            elif userProfile_email:
+                return Response({ 'error': f'The email: {userProfile_email} does not exists.'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({ 'error': 'Something went wrong. Please try re-entering your user credentials. If the issue persist, please reach out to customer support!'}, status=status.HTTP_404_NOT_FOUND)
 
 @method_decorator(csrf_protect, name='dispatch')
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny, )
     def post(self, request, format=None):
         ''' Login page for existing users'''
-        
+
         data = self.request.data
+
+        print(data)
 
         email = data['email']
         password= data['password']
@@ -204,6 +228,7 @@ class LoginView(APIView):
 
                 #checks if the user's email address exists in the Database
                 if user_authentication is not None:
+
                     password_authentication = check_password(password, user_authentication.password)
                     #Check's if the password entered matches the password stored in the Database
                     if password_authentication:
@@ -212,7 +237,8 @@ class LoginView(APIView):
 
                         #If the login credentials are valid, check for authentication
                         user = auth.authenticate(username = email, password = valid_password)
-                        
+
+
                         #Check's if the user is authenticated
                         if user is not None:
                             isAuthenticated = user.is_authenticated
@@ -220,14 +246,13 @@ class LoginView(APIView):
 
                                 #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
                                 auth.login(request, user)
-                                print('User detected from Database')
+
                                 return Response({ 
                                     'success':'User Authenticated Successfully!' 
                                     }
                                 )
                         else:
                             return Response({ 'error': 'Error Authenticating. Try Again' })
-                            
                     else:
                         return Response({'error': 'Password does not match our records. Try Again'})
         except:
@@ -235,6 +260,7 @@ class LoginView(APIView):
 
 # Will require a CSRF token
 class UpdateUserProfileView(APIView):
+    '''update user credentials'''
     def put(self, request, format=None):
         try:
             user = self.request.user
@@ -321,7 +347,7 @@ def goals(request):
 
 class LogoutView(APIView):
     def post(self, request, format=None):
-        ''' Log out '''
+        ''' Clears the session from cache and redirects back to the home page'''
 
         #Clears the session and redirects to the Login page
         # request.session.clear()
@@ -334,6 +360,7 @@ class LogoutView(APIView):
             return Response({ 'error': 'Something went wrong when logging out' })
 
 class DeleteAccountView(APIView):
+    '''deletes the user from the database'''
     def delete(self, request, format=None):
         user = self.request.user
 
