@@ -14,12 +14,11 @@ import {
 
 const initialState = {
   isAuthenticated: null,
+  profile_name: '',
   email: '',
   first_name: '',
   last_name: '',
-  profile_name: '',
   id: null,
-  profile_name: ''
 };
 
 export default function(state = initialState, action){
@@ -47,11 +46,9 @@ export default function(state = initialState, action){
     case LOAD_USER_PROFILE_SUCCESS:
       return {
         ...state,
-        profile_name: payload.profile.profile_name,
-        email: payload.profile.email,
-        id: payload.profile.id,
-        isAuthenticated: true,
-        email: payload
+        profile_name: payload.profile_name,
+        id: payload.id,
+        isAuthenticated: true
       }
     case LOGOUT_SUCCESS:
       return{

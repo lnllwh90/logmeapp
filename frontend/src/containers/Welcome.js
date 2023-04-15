@@ -1,21 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Nav from '../components/Navbar';
 import { Link } from'react-router-dom'
 import { load_user } from '../actions/auth';
-// import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 
-const welcome = ({ load_user }) => {
+const Welcome = ({ load_user }) => {
 
-    // const userData = useSelector((state) => state.auth.id)
+    const userData = useSelector((state) => state.auth.id)
+    console.log(userData)
+    useEffect(() => {
+        load_user();
+    }, []);
 
-    // {userData.profile_name} 
     return(
         <div className="container-fluid" id="wrapper">
             <Nav />
             <div className="card m-3">
                 <div className="card-body">
-                    <p className="h2 card-title" id='cap'> Welcome !</p>
+                    <p className="h2 card-title" id='cap'> Welcome {userData} !</p>
                     <p className="card-text" id='cap'> You are x calories away from reaching your weekly goal!</p>
                 </div>
             </div>
@@ -82,4 +85,5 @@ const welcome = ({ load_user }) => {
 };
 
 
-export default welcome;
+
+export default Welcome;
