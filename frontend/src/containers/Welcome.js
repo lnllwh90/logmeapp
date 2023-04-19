@@ -2,23 +2,23 @@ import React, { useEffect } from 'react';
 import Nav from '../components/Navbar';
 import { Link } from'react-router-dom'
 import { load_user } from '../actions/auth';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 
-const Welcome = ({ load_user }) => {
+const Welcome = () => {
+    const dispatch = useDispatch();
+    const userData = useSelector((state) => state.auth)
 
-    const userData = useSelector((state) => state.auth.id)
-    console.log(userData)
     useEffect(() => {
-        load_user();
-    }, []);
+        dispatch(load_user());
+    }, [dispatch]);
 
     return(
         <div className="container-fluid" id="wrapper">
             <Nav />
             <div className="card m-3">
                 <div className="card-body">
-                    <p className="h2 card-title" id='cap'> Welcome {userData} !</p>
+                    <p className="h2 card-title" id='cap'> Welcome {userData.profile_name} !</p>
                     <p className="card-text" id='cap'> You are x calories away from reaching your weekly goal!</p>
                 </div>
             </div>

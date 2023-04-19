@@ -55,21 +55,24 @@ export const load_user = () => async dispatch => {
   const config = {
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-CSRFToken': Cookies.get('csrftoken')
     }
   };
   try {
     const res = await axios.get(`${process.env.REACT_APP_API_URL}/user/`, config);
-
     if (res.data.error) {
+      console.log(res.data.error);
+      console.log(res.data);
       dispatch({
         type: LOAD_USER_PROFILE_FAIL
-      });
-    } else {
+      });console.log(res.data.error);
+      console.log(res.data)
+      } else {
         dispatch({
           type: LOAD_USER_PROFILE_SUCCESS,
           payload: res.data
-        });
+        });console.log(res.data)
       }
     } catch (err) {
       dispatch({
@@ -94,7 +97,7 @@ export const login = (email, password) => async dispatch => {
     if (res.data.success){
       dispatch({
         type: LOGIN_SUCCESS,
-        payload: res.data.email
+        payload: res.data
       });
       dispatch(load_user());
       console.log(res.data.success)
@@ -167,7 +170,7 @@ export const register = (email, password, confirm_password, first_name, last_nam
     } else {
       dispatch({
         type: REGISTER_SUCCESS,
-        payload: res.data.email
+        payload: res.data
       });
       dispatch(load_user());
       console.log(res.data.success)

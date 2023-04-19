@@ -24,7 +24,7 @@ import requests
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 
 # Create your views here.
 
@@ -70,11 +70,11 @@ class SignupView(APIView):
         errors = LogReg.objects.registration_validator(data)
 
         check_emailDB = LogReg.objects.filter(email=data['email'])
-
+        print('checked_emailDB')
         check_emailAPI = User.objects.filter(username = data['email'])
-
+        print('checked_emailAPI')
         profileName_check = LogReg.objects.filter(profile_name = data['profile_name'])
-
+        print('profileNameChecked')
         try:
 
             if check_emailDB or check_emailAPI:
@@ -102,10 +102,15 @@ class SignupView(APIView):
                             clean_data = serializer.data
 
                             email = clean_data['email']
+
                             password = clean_data['password']
+
                             hashed_pw =  make_password(password)
+
                             first_name = clean_data['first_name'] 
+
                             last_name = clean_data['last_name']
+
                             profile_name = clean_data['profile_name']
 
                             # You don't need to add variable.save() as the model.objects.create_user() function will save the instance for you.
@@ -202,7 +207,6 @@ class LoginView(APIView):
 
         data = self.request.data
 
-        print(data)
 
         email = data['email']
         password= data['password']

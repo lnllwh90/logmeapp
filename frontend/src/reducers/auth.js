@@ -13,12 +13,8 @@ import {
 } from '../actions/types'
 
 const initialState = {
-  isAuthenticated: null,
-  profile_name: '',
-  email: '',
-  first_name: '',
-  last_name: '',
-  id: null,
+  isAuthenticated: false,
+  user: null,
 };
 
 export default function(state = initialState, action){
@@ -30,47 +26,43 @@ export default function(state = initialState, action){
       // in this example, if you are signed in then you should not be able to register
       return {
         ...state,
+        user: payload,
         isAuthenticated: true
       }
     case LOGIN_SUCCESS:
       return {
         ...state,
+        user: payload,
         isAuthenticated: true
       }
     case AUTHENTICATED_SUCCESS:
     case AUTHENTICATED_FAIL:
       return {
         ...state,
-        isAuthenticated: payload
+        isAuthenticated: false
       }
     case LOAD_USER_PROFILE_SUCCESS:
       return {
         ...state,
-        profile_name: payload.profile_name,
-        id: payload.id,
+        user: payload,
         isAuthenticated: true
       }
     case LOGOUT_SUCCESS:
       return{
         ...state,
         isAuthenticated: false,
-        email: ''
       }
       case LOAD_USER_PROFILE_FAIL:
         return{
           ...state,
-          profile_name: '',
-          email: '',
-          first_name: '',
-          last_name: '',
-          id: null
+        isAuthenticated: false,
         }
     case REGISTER_FAIL:
     case LOGOUT_FAIL:
     case LOGIN_FAIL:
       return state
     default:
-      return state
+      return state;
 
   };
 };
