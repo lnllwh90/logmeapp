@@ -45,6 +45,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'LogMe_app',
+    'rest_framework.authtoken',
     'crispy_forms',
     'django.contrib.admin',
     'django.contrib.auth',

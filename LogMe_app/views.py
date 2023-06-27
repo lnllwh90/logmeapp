@@ -57,7 +57,7 @@ class GetCSRFToken(APIView):
 class SignupView(APIView):
 
     permission_classes = (permissions.AllowAny, )
-    
+
     def post(self, request, format = None):
 
         ''' Create a new user and adds the user to the Database. Upon success the user is then redirected to the LogMe app home page. '''
@@ -85,8 +85,8 @@ class SignupView(APIView):
 
                 for key, value in errors.items():
 
-                    return Response({'error': {'key': key, 'description': value}})   
-            else: 
+                    return Response({'error': {'key': key, 'description': value}})
+            else:
                 if auth_password == auth_cpw:
 
                     if profileName_check:
@@ -107,7 +107,7 @@ class SignupView(APIView):
 
                             hashed_pw =  make_password(password)
 
-                            first_name = clean_data['first_name'] 
+                            first_name = clean_data['first_name']
 
                             last_name = clean_data['last_name']
 
@@ -117,8 +117,8 @@ class SignupView(APIView):
 
                             user = User.objects.create_user(
                                 username = email,
-                                email = email, 
-                                first_name = first_name, 
+                                email = email,
+                                first_name = first_name,
                                 last_name = last_name,
                                 password = hashed_pw
                             )
@@ -126,9 +126,9 @@ class SignupView(APIView):
                             userId = User.objects.get(id = user.id)
 
                             LogReg.objects.create(
-                                email = email, 
-                                password = hashed_pw, 
-                                first_name = first_name, 
+                                email = email,
+                                password = hashed_pw,
+                                first_name = first_name,
                                 last_name = last_name,
                                 profile_name = profile_name,
                                 user = userId
@@ -143,24 +143,24 @@ class SignupView(APIView):
 
                                 #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
                                 auth.login(request, userSession)
-
+                            print(f"User authenticated successfully. The users\' credentials have been added into the Database.")
                             return Response(
-                                { 
-                                    'success': 'User created successfully' 
-                                }, 
+                                {
+                                    'success': 'User created successfully'
+                                },
                                 status=status.HTTP_201_CREATED
                             )
 
                 else:
-
+                    print(f'unable to authenticate the user, make sure the passwords match.')
                     return Response(
-                        { 
-                            'error': 'Passwords do not match' 
-                        }, 
+                        {
+                            'error': 'Passwords do not match'
+                        },
                         status=status.HTTP_400_BAD_REQUEST)
 
         except:
-
+            print(f'unable to authenticate the user')
             return Response(
                 {
                     'error': 'Something went wrong when registering account. Please Try again.'
@@ -176,6 +176,7 @@ class GetUserProfileView(APIView):
 
         userProfile_email = data.get('email')
         userProfile_profileName = data.get('profile_name')
+        print(f'email entered: {userProfile_email}\nprofile_name: {userProfile_profileName}')
         try:
             if userProfile_profileName and userProfile_email:
                 #This will check that if a profile_name and email was entered in the request that both are for the same user.
@@ -221,7 +222,7 @@ class LoginView(APIView):
                     return Response(
                         {
                             'error': {
-                                'key' : key, 
+                                'key' : key,
                                 'description': value
                             }
                         }
@@ -250,16 +251,19 @@ class LoginView(APIView):
 
                                 #If the user is authenticated, log the user into the app. Assigns a session id on the backend.
                                 auth.login(request, user)
-
-                                return Response({ 
-                                    'success':'User Authenticated Successfully!' 
+                                print(f'User Authenticated successfully!')
+                                return Response({
+                                    'success':'User Authenticated Successfully!'
                                     }
                                 )
                         else:
+                            print(f'unable to authenticate the user')
                             return Response({ 'error': 'Error Authenticating. Try Again' })
                     else:
+                        print(f'unable to authenticate the user')
                         return Response({'error': 'Password does not match our records. Try Again'})
         except:
+            print(f'unable to authenticate the user')
             return Response({ 'error': 'Something went wrong when logging in' })
 
 # Will require a CSRF token
@@ -302,10 +306,10 @@ def meal_search(request):
         # items = response.json()
         # print(items)
         # return(encoded_search_term)
-        
+
         # Food API URL
         edamam_api_url1 = 'https://api.edamam.com/api/food-database/v2/parser'
-        
+
         # Query string params (app_id and app_key passed from settings file)
         params = {
             'app_id' : settings.FOOD_API,
@@ -324,7 +328,7 @@ def meal_search(request):
         mealIds = []
 
         #debugging
-        #parses the Json Response 
+        #parses the Json Response
         for name in items2:
             meal_name = name['food']['label']
             meal_id = name['food']['foodId']
@@ -337,7 +341,7 @@ def meal_search(request):
 
         #returns the Json response upon success
         return JsonResponse(items)
-    
+
     #if results from JSON response returns in error, print an error
     return JsonResponse({'error': 'Not able to validate search'})
 
@@ -372,6 +376,6 @@ class DeleteAccountView(APIView):
             User.objects.filter(id=user.id).delete()
 
             return Response({ 'success': 'Account deleted Successfully'})
-        
+
         except:
             return Response({ 'error': 'Something went wrong when trying to delete user'})
