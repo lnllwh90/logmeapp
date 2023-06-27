@@ -13,8 +13,8 @@ import {
 } from '../actions/types'
 
 const initialState = {
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: null,
+  user: '',
 };
 
 export default function(state = initialState, action){
@@ -44,7 +44,7 @@ export default function(state = initialState, action){
     case LOAD_USER_PROFILE_SUCCESS:
       return {
         ...state,
-        user: payload,
+        user: payload.profile_name,
         isAuthenticated: true
       }
     case LOGOUT_SUCCESS:
